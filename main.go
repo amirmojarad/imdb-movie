@@ -22,7 +22,7 @@ func init() {
 }
 
 func main() {
-	username, password := os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_USERNAME")
+	username, password := os.Getenv("POSTGRES_USERNAME"), os.Getenv("POSTGRES_PASSWORD")
 	client, err := ent.Open("postgres", fmt.Sprintf("user=%s dbname=imdb-movie password=%s sslmode=disable", username, password))
 
 	if err != nil {
