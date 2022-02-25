@@ -8,8 +8,17 @@ import (
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
+
+func init() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalln("Error loading .env file")
+	}
+
+}
 
 func main() {
 	client, err := ent.Open("postgres", "user=postgres dbname=imdb-movie password=100990729 sslmode=disable")
@@ -34,6 +43,6 @@ func main() {
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
-	router := api.API{Ctx: ctx, Client: client, UserRouter: api.UserRouter{Ctx: ctx, Client: client}}
+	router := api.API{Ctx: ctx, Client: client}
 	router.RunAPI()
 }

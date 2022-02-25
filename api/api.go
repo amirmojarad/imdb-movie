@@ -25,6 +25,12 @@ type UserStruct struct {
 
 func (api API) RunAPI() {
 	router := gin.Default()
+
+	router.GET("/movies/all", func(c *gin.Context) {
+		response := GetMovie("batman")
+		c.IndentedJSON(http.StatusOK, response)
+	})
+
 	router.GET("/users", func(c *gin.Context) {
 		users := api.GetUsers()
 		c.IndentedJSON(http.StatusOK, users)
@@ -43,7 +49,7 @@ func (api API) RunAPI() {
 	})
 
 	router.POST("/users", func(c *gin.Context) {
-
+		// TODO : separate this lines of code into user_router.go
 		temp := UserStruct{}
 
 		if err := c.BindJSON(&temp); err != nil {
