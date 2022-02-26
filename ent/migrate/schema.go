@@ -12,12 +12,14 @@ var (
 	MoviesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "title", Type: field.TypeString},
-		{Name: "year", Type: field.TypeString, Default: "1900"},
 		{Name: "rated", Type: field.TypeFloat32},
 		{Name: "realease_date", Type: field.TypeTime},
 		{Name: "genre", Type: field.TypeString},
-		{Name: "language", Type: field.TypeString},
 		{Name: "poster", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "plot", Type: field.TypeString},
+		{Name: "stars", Type: field.TypeString},
+		{Name: "imdb_rating", Type: field.TypeString},
 	}
 	// MoviesTable holds the schema information for the "movies" table.
 	MoviesTable = &schema.Table{
@@ -39,12 +41,40 @@ var (
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
+	// UserMoviesColumns holds the columns for the "user_movies" table.
+	UserMoviesColumns = []*schema.Column{
+		{Name: "user_id", Type: field.TypeInt},
+		{Name: "movie_id", Type: field.TypeInt},
+	}
+	// UserMoviesTable holds the schema information for the "user_movies" table.
+	UserMoviesTable = &schema.Table{
+		Name:       "user_movies",
+		Columns:    UserMoviesColumns,
+		PrimaryKey: []*schema.Column{UserMoviesColumns[0], UserMoviesColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_movies_user_id",
+				Columns:    []*schema.Column{UserMoviesColumns[0]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "user_movies_movie_id",
+				Columns:    []*schema.Column{UserMoviesColumns[1]},
+				RefColumns: []*schema.Column{MoviesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		MoviesTable,
 		UsersTable,
+		UserMoviesTable,
 	}
 )
 
 func init() {
+	UserMoviesTable.ForeignKeys[0].RefTable = UsersTable
+	UserMoviesTable.ForeignKeys[1].RefTable = MoviesTable
 }

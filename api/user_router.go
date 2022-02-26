@@ -27,6 +27,25 @@ func (userRouter *API) PostUsers() (*ent.User, error) {
 	return nil, nil
 }
 
+func (userRouter *API) GetUserMovies(id int) ([]*ent.Movie, error) {
+	user, err := userRouter.Client.User.Get(userRouter.Ctx, id)
+	log.Println(user)
+	if err != nil {
+		return nil, err
+	}
+	movies, err := user.QueryMovies().All(userRouter.Ctx)
+	if err != nil {
+		return nil, err
+	}
+	return movies, nil
+}
+
+func (userRouter *API) AddMovies2User(user *ent.User, moviesIDs []int) {
+	for _, id := range moviesIDs {
+		userRouter.Client.User.UpdateOne(user).AddMovieIDs(id).Save(userRouter.Ctx)
+	}
+}
+
 func (userRouter *API) GetUsers() []*ent.User {
 	users, err := userRouter.Client.User.Query().Order(ent.Asc(user.FieldID)).All(userRouter.Ctx)
 	if err != nil {

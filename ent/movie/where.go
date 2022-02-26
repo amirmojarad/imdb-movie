@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -99,13 +100,6 @@ func Title(v string) predicate.Movie {
 	})
 }
 
-// Year applies equality check predicate on the "year" field. It's identical to YearEQ.
-func Year(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldYear), v))
-	})
-}
-
 // Rated applies equality check predicate on the "rated" field. It's identical to RatedEQ.
 func Rated(v float32) predicate.Movie {
 	return predicate.Movie(func(s *sql.Selector) {
@@ -127,17 +121,38 @@ func Genre(v string) predicate.Movie {
 	})
 }
 
-// Language applies equality check predicate on the "language" field. It's identical to LanguageEQ.
-func Language(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldLanguage), v))
-	})
-}
-
 // Poster applies equality check predicate on the "poster" field. It's identical to PosterEQ.
 func Poster(v string) predicate.Movie {
 	return predicate.Movie(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldPoster), v))
+	})
+}
+
+// Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
+func Description(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDescription), v))
+	})
+}
+
+// Plot applies equality check predicate on the "plot" field. It's identical to PlotEQ.
+func Plot(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPlot), v))
+	})
+}
+
+// Stars applies equality check predicate on the "stars" field. It's identical to StarsEQ.
+func Stars(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldStars), v))
+	})
+}
+
+// ImdbRating applies equality check predicate on the "imdb_rating" field. It's identical to ImdbRatingEQ.
+func ImdbRating(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldImdbRating), v))
 	})
 }
 
@@ -249,117 +264,6 @@ func TitleEqualFold(v string) predicate.Movie {
 func TitleContainsFold(v string) predicate.Movie {
 	return predicate.Movie(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldTitle), v))
-	})
-}
-
-// YearEQ applies the EQ predicate on the "year" field.
-func YearEQ(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldYear), v))
-	})
-}
-
-// YearNEQ applies the NEQ predicate on the "year" field.
-func YearNEQ(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldYear), v))
-	})
-}
-
-// YearIn applies the In predicate on the "year" field.
-func YearIn(vs ...string) predicate.Movie {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Movie(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.In(s.C(FieldYear), v...))
-	})
-}
-
-// YearNotIn applies the NotIn predicate on the "year" field.
-func YearNotIn(vs ...string) predicate.Movie {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Movie(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.NotIn(s.C(FieldYear), v...))
-	})
-}
-
-// YearGT applies the GT predicate on the "year" field.
-func YearGT(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldYear), v))
-	})
-}
-
-// YearGTE applies the GTE predicate on the "year" field.
-func YearGTE(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldYear), v))
-	})
-}
-
-// YearLT applies the LT predicate on the "year" field.
-func YearLT(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldYear), v))
-	})
-}
-
-// YearLTE applies the LTE predicate on the "year" field.
-func YearLTE(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldYear), v))
-	})
-}
-
-// YearContains applies the Contains predicate on the "year" field.
-func YearContains(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldYear), v))
-	})
-}
-
-// YearHasPrefix applies the HasPrefix predicate on the "year" field.
-func YearHasPrefix(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldYear), v))
-	})
-}
-
-// YearHasSuffix applies the HasSuffix predicate on the "year" field.
-func YearHasSuffix(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldYear), v))
-	})
-}
-
-// YearEqualFold applies the EqualFold predicate on the "year" field.
-func YearEqualFold(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldYear), v))
-	})
-}
-
-// YearContainsFold applies the ContainsFold predicate on the "year" field.
-func YearContainsFold(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldYear), v))
 	})
 }
 
@@ -626,117 +530,6 @@ func GenreContainsFold(v string) predicate.Movie {
 	})
 }
 
-// LanguageEQ applies the EQ predicate on the "language" field.
-func LanguageEQ(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldLanguage), v))
-	})
-}
-
-// LanguageNEQ applies the NEQ predicate on the "language" field.
-func LanguageNEQ(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldLanguage), v))
-	})
-}
-
-// LanguageIn applies the In predicate on the "language" field.
-func LanguageIn(vs ...string) predicate.Movie {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Movie(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.In(s.C(FieldLanguage), v...))
-	})
-}
-
-// LanguageNotIn applies the NotIn predicate on the "language" field.
-func LanguageNotIn(vs ...string) predicate.Movie {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Movie(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.NotIn(s.C(FieldLanguage), v...))
-	})
-}
-
-// LanguageGT applies the GT predicate on the "language" field.
-func LanguageGT(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldLanguage), v))
-	})
-}
-
-// LanguageGTE applies the GTE predicate on the "language" field.
-func LanguageGTE(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldLanguage), v))
-	})
-}
-
-// LanguageLT applies the LT predicate on the "language" field.
-func LanguageLT(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldLanguage), v))
-	})
-}
-
-// LanguageLTE applies the LTE predicate on the "language" field.
-func LanguageLTE(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldLanguage), v))
-	})
-}
-
-// LanguageContains applies the Contains predicate on the "language" field.
-func LanguageContains(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldLanguage), v))
-	})
-}
-
-// LanguageHasPrefix applies the HasPrefix predicate on the "language" field.
-func LanguageHasPrefix(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldLanguage), v))
-	})
-}
-
-// LanguageHasSuffix applies the HasSuffix predicate on the "language" field.
-func LanguageHasSuffix(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldLanguage), v))
-	})
-}
-
-// LanguageEqualFold applies the EqualFold predicate on the "language" field.
-func LanguageEqualFold(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldLanguage), v))
-	})
-}
-
-// LanguageContainsFold applies the ContainsFold predicate on the "language" field.
-func LanguageContainsFold(v string) predicate.Movie {
-	return predicate.Movie(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldLanguage), v))
-	})
-}
-
 // PosterEQ applies the EQ predicate on the "poster" field.
 func PosterEQ(v string) predicate.Movie {
 	return predicate.Movie(func(s *sql.Selector) {
@@ -845,6 +638,478 @@ func PosterEqualFold(v string) predicate.Movie {
 func PosterContainsFold(v string) predicate.Movie {
 	return predicate.Movie(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldPoster), v))
+	})
+}
+
+// DescriptionEQ applies the EQ predicate on the "description" field.
+func DescriptionEQ(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDescription), v))
+	})
+}
+
+// DescriptionNEQ applies the NEQ predicate on the "description" field.
+func DescriptionNEQ(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldDescription), v))
+	})
+}
+
+// DescriptionIn applies the In predicate on the "description" field.
+func DescriptionIn(vs ...string) predicate.Movie {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Movie(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldDescription), v...))
+	})
+}
+
+// DescriptionNotIn applies the NotIn predicate on the "description" field.
+func DescriptionNotIn(vs ...string) predicate.Movie {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Movie(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldDescription), v...))
+	})
+}
+
+// DescriptionGT applies the GT predicate on the "description" field.
+func DescriptionGT(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldDescription), v))
+	})
+}
+
+// DescriptionGTE applies the GTE predicate on the "description" field.
+func DescriptionGTE(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldDescription), v))
+	})
+}
+
+// DescriptionLT applies the LT predicate on the "description" field.
+func DescriptionLT(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldDescription), v))
+	})
+}
+
+// DescriptionLTE applies the LTE predicate on the "description" field.
+func DescriptionLTE(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldDescription), v))
+	})
+}
+
+// DescriptionContains applies the Contains predicate on the "description" field.
+func DescriptionContains(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldDescription), v))
+	})
+}
+
+// DescriptionHasPrefix applies the HasPrefix predicate on the "description" field.
+func DescriptionHasPrefix(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldDescription), v))
+	})
+}
+
+// DescriptionHasSuffix applies the HasSuffix predicate on the "description" field.
+func DescriptionHasSuffix(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldDescription), v))
+	})
+}
+
+// DescriptionEqualFold applies the EqualFold predicate on the "description" field.
+func DescriptionEqualFold(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldDescription), v))
+	})
+}
+
+// DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
+func DescriptionContainsFold(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldDescription), v))
+	})
+}
+
+// PlotEQ applies the EQ predicate on the "plot" field.
+func PlotEQ(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPlot), v))
+	})
+}
+
+// PlotNEQ applies the NEQ predicate on the "plot" field.
+func PlotNEQ(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPlot), v))
+	})
+}
+
+// PlotIn applies the In predicate on the "plot" field.
+func PlotIn(vs ...string) predicate.Movie {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Movie(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldPlot), v...))
+	})
+}
+
+// PlotNotIn applies the NotIn predicate on the "plot" field.
+func PlotNotIn(vs ...string) predicate.Movie {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Movie(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldPlot), v...))
+	})
+}
+
+// PlotGT applies the GT predicate on the "plot" field.
+func PlotGT(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldPlot), v))
+	})
+}
+
+// PlotGTE applies the GTE predicate on the "plot" field.
+func PlotGTE(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldPlot), v))
+	})
+}
+
+// PlotLT applies the LT predicate on the "plot" field.
+func PlotLT(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldPlot), v))
+	})
+}
+
+// PlotLTE applies the LTE predicate on the "plot" field.
+func PlotLTE(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldPlot), v))
+	})
+}
+
+// PlotContains applies the Contains predicate on the "plot" field.
+func PlotContains(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldPlot), v))
+	})
+}
+
+// PlotHasPrefix applies the HasPrefix predicate on the "plot" field.
+func PlotHasPrefix(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldPlot), v))
+	})
+}
+
+// PlotHasSuffix applies the HasSuffix predicate on the "plot" field.
+func PlotHasSuffix(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldPlot), v))
+	})
+}
+
+// PlotEqualFold applies the EqualFold predicate on the "plot" field.
+func PlotEqualFold(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldPlot), v))
+	})
+}
+
+// PlotContainsFold applies the ContainsFold predicate on the "plot" field.
+func PlotContainsFold(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldPlot), v))
+	})
+}
+
+// StarsEQ applies the EQ predicate on the "stars" field.
+func StarsEQ(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldStars), v))
+	})
+}
+
+// StarsNEQ applies the NEQ predicate on the "stars" field.
+func StarsNEQ(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldStars), v))
+	})
+}
+
+// StarsIn applies the In predicate on the "stars" field.
+func StarsIn(vs ...string) predicate.Movie {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Movie(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldStars), v...))
+	})
+}
+
+// StarsNotIn applies the NotIn predicate on the "stars" field.
+func StarsNotIn(vs ...string) predicate.Movie {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Movie(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldStars), v...))
+	})
+}
+
+// StarsGT applies the GT predicate on the "stars" field.
+func StarsGT(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldStars), v))
+	})
+}
+
+// StarsGTE applies the GTE predicate on the "stars" field.
+func StarsGTE(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldStars), v))
+	})
+}
+
+// StarsLT applies the LT predicate on the "stars" field.
+func StarsLT(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldStars), v))
+	})
+}
+
+// StarsLTE applies the LTE predicate on the "stars" field.
+func StarsLTE(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldStars), v))
+	})
+}
+
+// StarsContains applies the Contains predicate on the "stars" field.
+func StarsContains(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldStars), v))
+	})
+}
+
+// StarsHasPrefix applies the HasPrefix predicate on the "stars" field.
+func StarsHasPrefix(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldStars), v))
+	})
+}
+
+// StarsHasSuffix applies the HasSuffix predicate on the "stars" field.
+func StarsHasSuffix(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldStars), v))
+	})
+}
+
+// StarsEqualFold applies the EqualFold predicate on the "stars" field.
+func StarsEqualFold(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldStars), v))
+	})
+}
+
+// StarsContainsFold applies the ContainsFold predicate on the "stars" field.
+func StarsContainsFold(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldStars), v))
+	})
+}
+
+// ImdbRatingEQ applies the EQ predicate on the "imdb_rating" field.
+func ImdbRatingEQ(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldImdbRating), v))
+	})
+}
+
+// ImdbRatingNEQ applies the NEQ predicate on the "imdb_rating" field.
+func ImdbRatingNEQ(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldImdbRating), v))
+	})
+}
+
+// ImdbRatingIn applies the In predicate on the "imdb_rating" field.
+func ImdbRatingIn(vs ...string) predicate.Movie {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Movie(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldImdbRating), v...))
+	})
+}
+
+// ImdbRatingNotIn applies the NotIn predicate on the "imdb_rating" field.
+func ImdbRatingNotIn(vs ...string) predicate.Movie {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Movie(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldImdbRating), v...))
+	})
+}
+
+// ImdbRatingGT applies the GT predicate on the "imdb_rating" field.
+func ImdbRatingGT(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldImdbRating), v))
+	})
+}
+
+// ImdbRatingGTE applies the GTE predicate on the "imdb_rating" field.
+func ImdbRatingGTE(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldImdbRating), v))
+	})
+}
+
+// ImdbRatingLT applies the LT predicate on the "imdb_rating" field.
+func ImdbRatingLT(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldImdbRating), v))
+	})
+}
+
+// ImdbRatingLTE applies the LTE predicate on the "imdb_rating" field.
+func ImdbRatingLTE(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldImdbRating), v))
+	})
+}
+
+// ImdbRatingContains applies the Contains predicate on the "imdb_rating" field.
+func ImdbRatingContains(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldImdbRating), v))
+	})
+}
+
+// ImdbRatingHasPrefix applies the HasPrefix predicate on the "imdb_rating" field.
+func ImdbRatingHasPrefix(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldImdbRating), v))
+	})
+}
+
+// ImdbRatingHasSuffix applies the HasSuffix predicate on the "imdb_rating" field.
+func ImdbRatingHasSuffix(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldImdbRating), v))
+	})
+}
+
+// ImdbRatingEqualFold applies the EqualFold predicate on the "imdb_rating" field.
+func ImdbRatingEqualFold(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldImdbRating), v))
+	})
+}
+
+// ImdbRatingContainsFold applies the ContainsFold predicate on the "imdb_rating" field.
+func ImdbRatingContainsFold(v string) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldImdbRating), v))
+	})
+}
+
+// HasUsers applies the HasEdge predicate on the "users" edge.
+func HasUsers() predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(UsersTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, UsersTable, UsersPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUsersWith applies the HasEdge predicate on the "users" edge with a given conditions (other predicates).
+func HasUsersWith(preds ...predicate.User) predicate.Movie {
+	return predicate.Movie(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(UsersInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, UsersTable, UsersPrimaryKey...),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

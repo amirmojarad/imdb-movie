@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"imdb-movie/ent/movie"
 	"imdb-movie/ent/user"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -49,6 +50,21 @@ func (uc *UserCreate) SetNillableFullName(s *string) *UserCreate {
 func (uc *UserCreate) SetPassword(s string) *UserCreate {
 	uc.mutation.SetPassword(s)
 	return uc
+}
+
+// AddMovieIDs adds the "movies" edge to the Movie entity by IDs.
+func (uc *UserCreate) AddMovieIDs(ids ...int) *UserCreate {
+	uc.mutation.AddMovieIDs(ids...)
+	return uc
+}
+
+// AddMovies adds the "movies" edges to the Movie entity.
+func (uc *UserCreate) AddMovies(m ...*Movie) *UserCreate {
+	ids := make([]int, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return uc.AddMovieIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -193,6 +209,25 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldPassword,
 		})
 		_node.Password = value
+	}
+	if nodes := uc.mutation.MoviesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.MoviesTable,
+			Columns: user.MoviesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: movie.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

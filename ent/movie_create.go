@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"imdb-movie/ent/movie"
+	"imdb-movie/ent/user"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -23,20 +24,6 @@ type MovieCreate struct {
 // SetTitle sets the "title" field.
 func (mc *MovieCreate) SetTitle(s string) *MovieCreate {
 	mc.mutation.SetTitle(s)
-	return mc
-}
-
-// SetYear sets the "year" field.
-func (mc *MovieCreate) SetYear(s string) *MovieCreate {
-	mc.mutation.SetYear(s)
-	return mc
-}
-
-// SetNillableYear sets the "year" field if the given value is not nil.
-func (mc *MovieCreate) SetNillableYear(s *string) *MovieCreate {
-	if s != nil {
-		mc.SetYear(*s)
-	}
 	return mc
 }
 
@@ -66,16 +53,49 @@ func (mc *MovieCreate) SetGenre(s string) *MovieCreate {
 	return mc
 }
 
-// SetLanguage sets the "language" field.
-func (mc *MovieCreate) SetLanguage(s string) *MovieCreate {
-	mc.mutation.SetLanguage(s)
-	return mc
-}
-
 // SetPoster sets the "poster" field.
 func (mc *MovieCreate) SetPoster(s string) *MovieCreate {
 	mc.mutation.SetPoster(s)
 	return mc
+}
+
+// SetDescription sets the "description" field.
+func (mc *MovieCreate) SetDescription(s string) *MovieCreate {
+	mc.mutation.SetDescription(s)
+	return mc
+}
+
+// SetPlot sets the "plot" field.
+func (mc *MovieCreate) SetPlot(s string) *MovieCreate {
+	mc.mutation.SetPlot(s)
+	return mc
+}
+
+// SetStars sets the "stars" field.
+func (mc *MovieCreate) SetStars(s string) *MovieCreate {
+	mc.mutation.SetStars(s)
+	return mc
+}
+
+// SetImdbRating sets the "imdb_rating" field.
+func (mc *MovieCreate) SetImdbRating(s string) *MovieCreate {
+	mc.mutation.SetImdbRating(s)
+	return mc
+}
+
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (mc *MovieCreate) AddUserIDs(ids ...int) *MovieCreate {
+	mc.mutation.AddUserIDs(ids...)
+	return mc
+}
+
+// AddUsers adds the "users" edges to the User entity.
+func (mc *MovieCreate) AddUsers(u ...*User) *MovieCreate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return mc.AddUserIDs(ids...)
 }
 
 // Mutation returns the MovieMutation object of the builder.
@@ -149,10 +169,6 @@ func (mc *MovieCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (mc *MovieCreate) defaults() {
-	if _, ok := mc.mutation.Year(); !ok {
-		v := movie.DefaultYear
-		mc.mutation.SetYear(v)
-	}
 	if _, ok := mc.mutation.RealeaseDate(); !ok {
 		v := movie.DefaultRealeaseDate()
 		mc.mutation.SetRealeaseDate(v)
@@ -164,9 +180,6 @@ func (mc *MovieCreate) check() error {
 	if _, ok := mc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Movie.title"`)}
 	}
-	if _, ok := mc.mutation.Year(); !ok {
-		return &ValidationError{Name: "year", err: errors.New(`ent: missing required field "Movie.year"`)}
-	}
 	if _, ok := mc.mutation.Rated(); !ok {
 		return &ValidationError{Name: "rated", err: errors.New(`ent: missing required field "Movie.rated"`)}
 	}
@@ -176,11 +189,20 @@ func (mc *MovieCreate) check() error {
 	if _, ok := mc.mutation.Genre(); !ok {
 		return &ValidationError{Name: "genre", err: errors.New(`ent: missing required field "Movie.genre"`)}
 	}
-	if _, ok := mc.mutation.Language(); !ok {
-		return &ValidationError{Name: "language", err: errors.New(`ent: missing required field "Movie.language"`)}
-	}
 	if _, ok := mc.mutation.Poster(); !ok {
 		return &ValidationError{Name: "poster", err: errors.New(`ent: missing required field "Movie.poster"`)}
+	}
+	if _, ok := mc.mutation.Description(); !ok {
+		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Movie.description"`)}
+	}
+	if _, ok := mc.mutation.Plot(); !ok {
+		return &ValidationError{Name: "plot", err: errors.New(`ent: missing required field "Movie.plot"`)}
+	}
+	if _, ok := mc.mutation.Stars(); !ok {
+		return &ValidationError{Name: "stars", err: errors.New(`ent: missing required field "Movie.stars"`)}
+	}
+	if _, ok := mc.mutation.ImdbRating(); !ok {
+		return &ValidationError{Name: "imdb_rating", err: errors.New(`ent: missing required field "Movie.imdb_rating"`)}
 	}
 	return nil
 }
@@ -217,14 +239,6 @@ func (mc *MovieCreate) createSpec() (*Movie, *sqlgraph.CreateSpec) {
 		})
 		_node.Title = value
 	}
-	if value, ok := mc.mutation.Year(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: movie.FieldYear,
-		})
-		_node.Year = value
-	}
 	if value, ok := mc.mutation.Rated(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeFloat32,
@@ -249,14 +263,6 @@ func (mc *MovieCreate) createSpec() (*Movie, *sqlgraph.CreateSpec) {
 		})
 		_node.Genre = value
 	}
-	if value, ok := mc.mutation.Language(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: movie.FieldLanguage,
-		})
-		_node.Language = value
-	}
 	if value, ok := mc.mutation.Poster(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -264,6 +270,57 @@ func (mc *MovieCreate) createSpec() (*Movie, *sqlgraph.CreateSpec) {
 			Column: movie.FieldPoster,
 		})
 		_node.Poster = value
+	}
+	if value, ok := mc.mutation.Description(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldDescription,
+		})
+		_node.Description = value
+	}
+	if value, ok := mc.mutation.Plot(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldPlot,
+		})
+		_node.Plot = value
+	}
+	if value, ok := mc.mutation.Stars(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldStars,
+		})
+		_node.Stars = value
+	}
+	if value, ok := mc.mutation.ImdbRating(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldImdbRating,
+		})
+		_node.ImdbRating = value
+	}
+	if nodes := mc.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   movie.UsersTable,
+			Columns: movie.UsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

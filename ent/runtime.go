@@ -15,12 +15,8 @@ import (
 func init() {
 	movieFields := schema.Movie{}.Fields()
 	_ = movieFields
-	// movieDescYear is the schema descriptor for year field.
-	movieDescYear := movieFields[1].Descriptor()
-	// movie.DefaultYear holds the default value on creation for the year field.
-	movie.DefaultYear = movieDescYear.Default.(string)
 	// movieDescRealeaseDate is the schema descriptor for realease_date field.
-	movieDescRealeaseDate := movieFields[3].Descriptor()
+	movieDescRealeaseDate := movieFields[2].Descriptor()
 	// movie.DefaultRealeaseDate holds the default value on creation for the realease_date field.
 	movie.DefaultRealeaseDate = movieDescRealeaseDate.Default.(func() time.Time)
 	userFields := schema.User{}.Fields()

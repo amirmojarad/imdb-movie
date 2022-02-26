@@ -6,6 +6,7 @@ import (
 	"imdb-movie/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -574,6 +575,34 @@ func PasswordEqualFold(v string) predicate.User {
 func PasswordContainsFold(v string) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldPassword), v))
+	})
+}
+
+// HasMovies applies the HasEdge predicate on the "movies" edge.
+func HasMovies() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(MoviesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, MoviesTable, MoviesPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMoviesWith applies the HasEdge predicate on the "movies" edge with a given conditions (other predicates).
+func HasMoviesWith(preds ...predicate.Movie) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(MoviesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, MoviesTable, MoviesPrimaryKey...),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

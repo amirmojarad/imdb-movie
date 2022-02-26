@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"imdb-movie/ent/movie"
 	"imdb-movie/ent/predicate"
+	"imdb-movie/ent/user"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -31,20 +32,6 @@ func (mu *MovieUpdate) Where(ps ...predicate.Movie) *MovieUpdate {
 // SetTitle sets the "title" field.
 func (mu *MovieUpdate) SetTitle(s string) *MovieUpdate {
 	mu.mutation.SetTitle(s)
-	return mu
-}
-
-// SetYear sets the "year" field.
-func (mu *MovieUpdate) SetYear(s string) *MovieUpdate {
-	mu.mutation.SetYear(s)
-	return mu
-}
-
-// SetNillableYear sets the "year" field if the given value is not nil.
-func (mu *MovieUpdate) SetNillableYear(s *string) *MovieUpdate {
-	if s != nil {
-		mu.SetYear(*s)
-	}
 	return mu
 }
 
@@ -81,21 +68,75 @@ func (mu *MovieUpdate) SetGenre(s string) *MovieUpdate {
 	return mu
 }
 
-// SetLanguage sets the "language" field.
-func (mu *MovieUpdate) SetLanguage(s string) *MovieUpdate {
-	mu.mutation.SetLanguage(s)
-	return mu
-}
-
 // SetPoster sets the "poster" field.
 func (mu *MovieUpdate) SetPoster(s string) *MovieUpdate {
 	mu.mutation.SetPoster(s)
 	return mu
 }
 
+// SetDescription sets the "description" field.
+func (mu *MovieUpdate) SetDescription(s string) *MovieUpdate {
+	mu.mutation.SetDescription(s)
+	return mu
+}
+
+// SetPlot sets the "plot" field.
+func (mu *MovieUpdate) SetPlot(s string) *MovieUpdate {
+	mu.mutation.SetPlot(s)
+	return mu
+}
+
+// SetStars sets the "stars" field.
+func (mu *MovieUpdate) SetStars(s string) *MovieUpdate {
+	mu.mutation.SetStars(s)
+	return mu
+}
+
+// SetImdbRating sets the "imdb_rating" field.
+func (mu *MovieUpdate) SetImdbRating(s string) *MovieUpdate {
+	mu.mutation.SetImdbRating(s)
+	return mu
+}
+
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (mu *MovieUpdate) AddUserIDs(ids ...int) *MovieUpdate {
+	mu.mutation.AddUserIDs(ids...)
+	return mu
+}
+
+// AddUsers adds the "users" edges to the User entity.
+func (mu *MovieUpdate) AddUsers(u ...*User) *MovieUpdate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return mu.AddUserIDs(ids...)
+}
+
 // Mutation returns the MovieMutation object of the builder.
 func (mu *MovieUpdate) Mutation() *MovieMutation {
 	return mu.mutation
+}
+
+// ClearUsers clears all "users" edges to the User entity.
+func (mu *MovieUpdate) ClearUsers() *MovieUpdate {
+	mu.mutation.ClearUsers()
+	return mu
+}
+
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
+func (mu *MovieUpdate) RemoveUserIDs(ids ...int) *MovieUpdate {
+	mu.mutation.RemoveUserIDs(ids...)
+	return mu
+}
+
+// RemoveUsers removes "users" edges to User entities.
+func (mu *MovieUpdate) RemoveUsers(u ...*User) *MovieUpdate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return mu.RemoveUserIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -177,13 +218,6 @@ func (mu *MovieUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: movie.FieldTitle,
 		})
 	}
-	if value, ok := mu.mutation.Year(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: movie.FieldYear,
-		})
-	}
 	if value, ok := mu.mutation.Rated(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeFloat32,
@@ -212,19 +246,94 @@ func (mu *MovieUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: movie.FieldGenre,
 		})
 	}
-	if value, ok := mu.mutation.Language(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: movie.FieldLanguage,
-		})
-	}
 	if value, ok := mu.mutation.Poster(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
 			Column: movie.FieldPoster,
 		})
+	}
+	if value, ok := mu.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldDescription,
+		})
+	}
+	if value, ok := mu.mutation.Plot(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldPlot,
+		})
+	}
+	if value, ok := mu.mutation.Stars(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldStars,
+		})
+	}
+	if value, ok := mu.mutation.ImdbRating(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldImdbRating,
+		})
+	}
+	if mu.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   movie.UsersTable,
+			Columns: movie.UsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedUsersIDs(); len(nodes) > 0 && !mu.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   movie.UsersTable,
+			Columns: movie.UsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   movie.UsersTable,
+			Columns: movie.UsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -248,20 +357,6 @@ type MovieUpdateOne struct {
 // SetTitle sets the "title" field.
 func (muo *MovieUpdateOne) SetTitle(s string) *MovieUpdateOne {
 	muo.mutation.SetTitle(s)
-	return muo
-}
-
-// SetYear sets the "year" field.
-func (muo *MovieUpdateOne) SetYear(s string) *MovieUpdateOne {
-	muo.mutation.SetYear(s)
-	return muo
-}
-
-// SetNillableYear sets the "year" field if the given value is not nil.
-func (muo *MovieUpdateOne) SetNillableYear(s *string) *MovieUpdateOne {
-	if s != nil {
-		muo.SetYear(*s)
-	}
 	return muo
 }
 
@@ -298,21 +393,75 @@ func (muo *MovieUpdateOne) SetGenre(s string) *MovieUpdateOne {
 	return muo
 }
 
-// SetLanguage sets the "language" field.
-func (muo *MovieUpdateOne) SetLanguage(s string) *MovieUpdateOne {
-	muo.mutation.SetLanguage(s)
-	return muo
-}
-
 // SetPoster sets the "poster" field.
 func (muo *MovieUpdateOne) SetPoster(s string) *MovieUpdateOne {
 	muo.mutation.SetPoster(s)
 	return muo
 }
 
+// SetDescription sets the "description" field.
+func (muo *MovieUpdateOne) SetDescription(s string) *MovieUpdateOne {
+	muo.mutation.SetDescription(s)
+	return muo
+}
+
+// SetPlot sets the "plot" field.
+func (muo *MovieUpdateOne) SetPlot(s string) *MovieUpdateOne {
+	muo.mutation.SetPlot(s)
+	return muo
+}
+
+// SetStars sets the "stars" field.
+func (muo *MovieUpdateOne) SetStars(s string) *MovieUpdateOne {
+	muo.mutation.SetStars(s)
+	return muo
+}
+
+// SetImdbRating sets the "imdb_rating" field.
+func (muo *MovieUpdateOne) SetImdbRating(s string) *MovieUpdateOne {
+	muo.mutation.SetImdbRating(s)
+	return muo
+}
+
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (muo *MovieUpdateOne) AddUserIDs(ids ...int) *MovieUpdateOne {
+	muo.mutation.AddUserIDs(ids...)
+	return muo
+}
+
+// AddUsers adds the "users" edges to the User entity.
+func (muo *MovieUpdateOne) AddUsers(u ...*User) *MovieUpdateOne {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return muo.AddUserIDs(ids...)
+}
+
 // Mutation returns the MovieMutation object of the builder.
 func (muo *MovieUpdateOne) Mutation() *MovieMutation {
 	return muo.mutation
+}
+
+// ClearUsers clears all "users" edges to the User entity.
+func (muo *MovieUpdateOne) ClearUsers() *MovieUpdateOne {
+	muo.mutation.ClearUsers()
+	return muo
+}
+
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
+func (muo *MovieUpdateOne) RemoveUserIDs(ids ...int) *MovieUpdateOne {
+	muo.mutation.RemoveUserIDs(ids...)
+	return muo
+}
+
+// RemoveUsers removes "users" edges to User entities.
+func (muo *MovieUpdateOne) RemoveUsers(u ...*User) *MovieUpdateOne {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return muo.RemoveUserIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -418,13 +567,6 @@ func (muo *MovieUpdateOne) sqlSave(ctx context.Context) (_node *Movie, err error
 			Column: movie.FieldTitle,
 		})
 	}
-	if value, ok := muo.mutation.Year(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: movie.FieldYear,
-		})
-	}
 	if value, ok := muo.mutation.Rated(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeFloat32,
@@ -453,19 +595,94 @@ func (muo *MovieUpdateOne) sqlSave(ctx context.Context) (_node *Movie, err error
 			Column: movie.FieldGenre,
 		})
 	}
-	if value, ok := muo.mutation.Language(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: movie.FieldLanguage,
-		})
-	}
 	if value, ok := muo.mutation.Poster(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
 			Column: movie.FieldPoster,
 		})
+	}
+	if value, ok := muo.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldDescription,
+		})
+	}
+	if value, ok := muo.mutation.Plot(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldPlot,
+		})
+	}
+	if value, ok := muo.mutation.Stars(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldStars,
+		})
+	}
+	if value, ok := muo.mutation.ImdbRating(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: movie.FieldImdbRating,
+		})
+	}
+	if muo.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   movie.UsersTable,
+			Columns: movie.UsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedUsersIDs(); len(nodes) > 0 && !muo.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   movie.UsersTable,
+			Columns: movie.UsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   movie.UsersTable,
+			Columns: movie.UsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Movie{config: muo.config}
 	_spec.Assign = _node.assignValues

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -16,16 +17,20 @@ type Movie struct {
 func (Movie) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("title"),
-		field.String("year").Default("1900"),
 		field.Float32("rated"),
 		field.Time("realease_date").Default(time.Now),
 		field.String("genre"),
-		field.String("language"),
 		field.String("poster"),
+		field.String("description"),
+		field.String("plot"),
+		field.String("stars"),
+		field.String("imdb_rating"),
 	}
 }
 
 // Edges of the Movie.
 func (Movie) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("users", User.Type).Ref("movies"),
+	}
 }

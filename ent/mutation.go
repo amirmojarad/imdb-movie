@@ -35,14 +35,19 @@ type MovieMutation struct {
 	typ           string
 	id            *int
 	title         *string
-	year          *string
 	rated         *float32
 	addrated      *float32
 	realease_date *time.Time
 	genre         *string
-	language      *string
 	poster        *string
+	description   *string
+	plot          *string
+	stars         *string
+	imdb_rating   *string
 	clearedFields map[string]struct{}
+	users         map[int]struct{}
+	removedusers  map[int]struct{}
+	clearedusers  bool
 	done          bool
 	oldValue      func(context.Context) (*Movie, error)
 	predicates    []predicate.Movie
@@ -182,42 +187,6 @@ func (m *MovieMutation) ResetTitle() {
 	m.title = nil
 }
 
-// SetYear sets the "year" field.
-func (m *MovieMutation) SetYear(s string) {
-	m.year = &s
-}
-
-// Year returns the value of the "year" field in the mutation.
-func (m *MovieMutation) Year() (r string, exists bool) {
-	v := m.year
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldYear returns the old "year" field's value of the Movie entity.
-// If the Movie object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MovieMutation) OldYear(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldYear is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldYear requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldYear: %w", err)
-	}
-	return oldValue.Year, nil
-}
-
-// ResetYear resets all changes to the "year" field.
-func (m *MovieMutation) ResetYear() {
-	m.year = nil
-}
-
 // SetRated sets the "rated" field.
 func (m *MovieMutation) SetRated(f float32) {
 	m.rated = &f
@@ -346,42 +315,6 @@ func (m *MovieMutation) ResetGenre() {
 	m.genre = nil
 }
 
-// SetLanguage sets the "language" field.
-func (m *MovieMutation) SetLanguage(s string) {
-	m.language = &s
-}
-
-// Language returns the value of the "language" field in the mutation.
-func (m *MovieMutation) Language() (r string, exists bool) {
-	v := m.language
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLanguage returns the old "language" field's value of the Movie entity.
-// If the Movie object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MovieMutation) OldLanguage(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLanguage is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLanguage requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLanguage: %w", err)
-	}
-	return oldValue.Language, nil
-}
-
-// ResetLanguage resets all changes to the "language" field.
-func (m *MovieMutation) ResetLanguage() {
-	m.language = nil
-}
-
 // SetPoster sets the "poster" field.
 func (m *MovieMutation) SetPoster(s string) {
 	m.poster = &s
@@ -418,6 +351,204 @@ func (m *MovieMutation) ResetPoster() {
 	m.poster = nil
 }
 
+// SetDescription sets the "description" field.
+func (m *MovieMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *MovieMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the Movie entity.
+// If the Movie object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MovieMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *MovieMutation) ResetDescription() {
+	m.description = nil
+}
+
+// SetPlot sets the "plot" field.
+func (m *MovieMutation) SetPlot(s string) {
+	m.plot = &s
+}
+
+// Plot returns the value of the "plot" field in the mutation.
+func (m *MovieMutation) Plot() (r string, exists bool) {
+	v := m.plot
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPlot returns the old "plot" field's value of the Movie entity.
+// If the Movie object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MovieMutation) OldPlot(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPlot is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPlot requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPlot: %w", err)
+	}
+	return oldValue.Plot, nil
+}
+
+// ResetPlot resets all changes to the "plot" field.
+func (m *MovieMutation) ResetPlot() {
+	m.plot = nil
+}
+
+// SetStars sets the "stars" field.
+func (m *MovieMutation) SetStars(s string) {
+	m.stars = &s
+}
+
+// Stars returns the value of the "stars" field in the mutation.
+func (m *MovieMutation) Stars() (r string, exists bool) {
+	v := m.stars
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStars returns the old "stars" field's value of the Movie entity.
+// If the Movie object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MovieMutation) OldStars(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStars is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStars requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStars: %w", err)
+	}
+	return oldValue.Stars, nil
+}
+
+// ResetStars resets all changes to the "stars" field.
+func (m *MovieMutation) ResetStars() {
+	m.stars = nil
+}
+
+// SetImdbRating sets the "imdb_rating" field.
+func (m *MovieMutation) SetImdbRating(s string) {
+	m.imdb_rating = &s
+}
+
+// ImdbRating returns the value of the "imdb_rating" field in the mutation.
+func (m *MovieMutation) ImdbRating() (r string, exists bool) {
+	v := m.imdb_rating
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldImdbRating returns the old "imdb_rating" field's value of the Movie entity.
+// If the Movie object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MovieMutation) OldImdbRating(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldImdbRating is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldImdbRating requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldImdbRating: %w", err)
+	}
+	return oldValue.ImdbRating, nil
+}
+
+// ResetImdbRating resets all changes to the "imdb_rating" field.
+func (m *MovieMutation) ResetImdbRating() {
+	m.imdb_rating = nil
+}
+
+// AddUserIDs adds the "users" edge to the User entity by ids.
+func (m *MovieMutation) AddUserIDs(ids ...int) {
+	if m.users == nil {
+		m.users = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.users[ids[i]] = struct{}{}
+	}
+}
+
+// ClearUsers clears the "users" edge to the User entity.
+func (m *MovieMutation) ClearUsers() {
+	m.clearedusers = true
+}
+
+// UsersCleared reports if the "users" edge to the User entity was cleared.
+func (m *MovieMutation) UsersCleared() bool {
+	return m.clearedusers
+}
+
+// RemoveUserIDs removes the "users" edge to the User entity by IDs.
+func (m *MovieMutation) RemoveUserIDs(ids ...int) {
+	if m.removedusers == nil {
+		m.removedusers = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.users, ids[i])
+		m.removedusers[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedUsers returns the removed IDs of the "users" edge to the User entity.
+func (m *MovieMutation) RemovedUsersIDs() (ids []int) {
+	for id := range m.removedusers {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// UsersIDs returns the "users" edge IDs in the mutation.
+func (m *MovieMutation) UsersIDs() (ids []int) {
+	for id := range m.users {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetUsers resets all changes to the "users" edge.
+func (m *MovieMutation) ResetUsers() {
+	m.users = nil
+	m.clearedusers = false
+	m.removedusers = nil
+}
+
 // Where appends a list predicates to the MovieMutation builder.
 func (m *MovieMutation) Where(ps ...predicate.Movie) {
 	m.predicates = append(m.predicates, ps...)
@@ -437,12 +568,9 @@ func (m *MovieMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MovieMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 9)
 	if m.title != nil {
 		fields = append(fields, movie.FieldTitle)
-	}
-	if m.year != nil {
-		fields = append(fields, movie.FieldYear)
 	}
 	if m.rated != nil {
 		fields = append(fields, movie.FieldRated)
@@ -453,11 +581,20 @@ func (m *MovieMutation) Fields() []string {
 	if m.genre != nil {
 		fields = append(fields, movie.FieldGenre)
 	}
-	if m.language != nil {
-		fields = append(fields, movie.FieldLanguage)
-	}
 	if m.poster != nil {
 		fields = append(fields, movie.FieldPoster)
+	}
+	if m.description != nil {
+		fields = append(fields, movie.FieldDescription)
+	}
+	if m.plot != nil {
+		fields = append(fields, movie.FieldPlot)
+	}
+	if m.stars != nil {
+		fields = append(fields, movie.FieldStars)
+	}
+	if m.imdb_rating != nil {
+		fields = append(fields, movie.FieldImdbRating)
 	}
 	return fields
 }
@@ -469,18 +606,22 @@ func (m *MovieMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case movie.FieldTitle:
 		return m.Title()
-	case movie.FieldYear:
-		return m.Year()
 	case movie.FieldRated:
 		return m.Rated()
 	case movie.FieldRealeaseDate:
 		return m.RealeaseDate()
 	case movie.FieldGenre:
 		return m.Genre()
-	case movie.FieldLanguage:
-		return m.Language()
 	case movie.FieldPoster:
 		return m.Poster()
+	case movie.FieldDescription:
+		return m.Description()
+	case movie.FieldPlot:
+		return m.Plot()
+	case movie.FieldStars:
+		return m.Stars()
+	case movie.FieldImdbRating:
+		return m.ImdbRating()
 	}
 	return nil, false
 }
@@ -492,18 +633,22 @@ func (m *MovieMutation) OldField(ctx context.Context, name string) (ent.Value, e
 	switch name {
 	case movie.FieldTitle:
 		return m.OldTitle(ctx)
-	case movie.FieldYear:
-		return m.OldYear(ctx)
 	case movie.FieldRated:
 		return m.OldRated(ctx)
 	case movie.FieldRealeaseDate:
 		return m.OldRealeaseDate(ctx)
 	case movie.FieldGenre:
 		return m.OldGenre(ctx)
-	case movie.FieldLanguage:
-		return m.OldLanguage(ctx)
 	case movie.FieldPoster:
 		return m.OldPoster(ctx)
+	case movie.FieldDescription:
+		return m.OldDescription(ctx)
+	case movie.FieldPlot:
+		return m.OldPlot(ctx)
+	case movie.FieldStars:
+		return m.OldStars(ctx)
+	case movie.FieldImdbRating:
+		return m.OldImdbRating(ctx)
 	}
 	return nil, fmt.Errorf("unknown Movie field %s", name)
 }
@@ -519,13 +664,6 @@ func (m *MovieMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTitle(v)
-		return nil
-	case movie.FieldYear:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetYear(v)
 		return nil
 	case movie.FieldRated:
 		v, ok := value.(float32)
@@ -548,19 +686,40 @@ func (m *MovieMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetGenre(v)
 		return nil
-	case movie.FieldLanguage:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetLanguage(v)
-		return nil
 	case movie.FieldPoster:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPoster(v)
+		return nil
+	case movie.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case movie.FieldPlot:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPlot(v)
+		return nil
+	case movie.FieldStars:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStars(v)
+		return nil
+	case movie.FieldImdbRating:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetImdbRating(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Movie field %s", name)
@@ -629,9 +788,6 @@ func (m *MovieMutation) ResetField(name string) error {
 	case movie.FieldTitle:
 		m.ResetTitle()
 		return nil
-	case movie.FieldYear:
-		m.ResetYear()
-		return nil
 	case movie.FieldRated:
 		m.ResetRated()
 		return nil
@@ -641,11 +797,20 @@ func (m *MovieMutation) ResetField(name string) error {
 	case movie.FieldGenre:
 		m.ResetGenre()
 		return nil
-	case movie.FieldLanguage:
-		m.ResetLanguage()
-		return nil
 	case movie.FieldPoster:
 		m.ResetPoster()
+		return nil
+	case movie.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case movie.FieldPlot:
+		m.ResetPlot()
+		return nil
+	case movie.FieldStars:
+		m.ResetStars()
+		return nil
+	case movie.FieldImdbRating:
+		m.ResetImdbRating()
 		return nil
 	}
 	return fmt.Errorf("unknown Movie field %s", name)
@@ -653,49 +818,85 @@ func (m *MovieMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MovieMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.users != nil {
+		edges = append(edges, movie.EdgeUsers)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *MovieMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case movie.EdgeUsers:
+		ids := make([]ent.Value, 0, len(m.users))
+		for id := range m.users {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MovieMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removedusers != nil {
+		edges = append(edges, movie.EdgeUsers)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *MovieMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case movie.EdgeUsers:
+		ids := make([]ent.Value, 0, len(m.removedusers))
+		for id := range m.removedusers {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MovieMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedusers {
+		edges = append(edges, movie.EdgeUsers)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *MovieMutation) EdgeCleared(name string) bool {
+	switch name {
+	case movie.EdgeUsers:
+		return m.clearedusers
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *MovieMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Movie unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *MovieMutation) ResetEdge(name string) error {
+	switch name {
+	case movie.EdgeUsers:
+		m.ResetUsers()
+		return nil
+	}
 	return fmt.Errorf("unknown Movie edge %s", name)
 }
 
@@ -710,6 +911,9 @@ type UserMutation struct {
 	full_name     *string
 	password      *string
 	clearedFields map[string]struct{}
+	movies        map[int]struct{}
+	removedmovies map[int]struct{}
+	clearedmovies bool
 	done          bool
 	oldValue      func(context.Context) (*User, error)
 	predicates    []predicate.User
@@ -970,6 +1174,60 @@ func (m *UserMutation) ResetPassword() {
 	m.password = nil
 }
 
+// AddMovieIDs adds the "movies" edge to the Movie entity by ids.
+func (m *UserMutation) AddMovieIDs(ids ...int) {
+	if m.movies == nil {
+		m.movies = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.movies[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMovies clears the "movies" edge to the Movie entity.
+func (m *UserMutation) ClearMovies() {
+	m.clearedmovies = true
+}
+
+// MoviesCleared reports if the "movies" edge to the Movie entity was cleared.
+func (m *UserMutation) MoviesCleared() bool {
+	return m.clearedmovies
+}
+
+// RemoveMovieIDs removes the "movies" edge to the Movie entity by IDs.
+func (m *UserMutation) RemoveMovieIDs(ids ...int) {
+	if m.removedmovies == nil {
+		m.removedmovies = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.movies, ids[i])
+		m.removedmovies[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMovies returns the removed IDs of the "movies" edge to the Movie entity.
+func (m *UserMutation) RemovedMoviesIDs() (ids []int) {
+	for id := range m.removedmovies {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MoviesIDs returns the "movies" edge IDs in the mutation.
+func (m *UserMutation) MoviesIDs() (ids []int) {
+	for id := range m.movies {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMovies resets all changes to the "movies" edge.
+func (m *UserMutation) ResetMovies() {
+	m.movies = nil
+	m.clearedmovies = false
+	m.removedmovies = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -1148,48 +1406,84 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.movies != nil {
+		edges = append(edges, user.EdgeMovies)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *UserMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case user.EdgeMovies:
+		ids := make([]ent.Value, 0, len(m.movies))
+		for id := range m.movies {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removedmovies != nil {
+		edges = append(edges, user.EdgeMovies)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *UserMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case user.EdgeMovies:
+		ids := make([]ent.Value, 0, len(m.removedmovies))
+		for id := range m.removedmovies {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedmovies {
+		edges = append(edges, user.EdgeMovies)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *UserMutation) EdgeCleared(name string) bool {
+	switch name {
+	case user.EdgeMovies:
+		return m.clearedmovies
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *UserMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown User unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
+	switch name {
+	case user.EdgeMovies:
+		m.ResetMovies()
+		return nil
+	}
 	return fmt.Errorf("unknown User edge %s", name)
 }

@@ -16,6 +16,11 @@ type API struct {
 	Client *ent.Client
 }
 
+type AddMoviesStruct struct {
+	MovieIDs []int
+	UserID   int
+}
+
 type UserStruct struct {
 	Email    string
 	Password string
@@ -26,9 +31,45 @@ type UserStruct struct {
 func (api API) RunAPI() {
 	router := gin.Default()
 
+	router.GET("/users/movies/:id", func(c *gin.Context) {
+		userID, _ := strconv.Atoi(c.Param("id"))
+		movies, err := api.GetUserMovies(userID)
+		log.Println(movies)
+		if err != nil {
+			log.Println("on get user movies: ", err)
+			return
+		}
+		c.IndentedJSON(http.StatusOK, movies)
+
+	})
+
+	router.POST("/users/movies", func(c *gin.Context) {
+		/*
+			{
+				"movieIDs": [],
+				"userID": 1
+			}
+		*/
+		addMovies := AddMoviesStruct{}
+		if err := c.BindJSON(&addMovies); err != nil {
+			log.Println("on Add Movies endpoint: ", err)
+			c.IndentedJSON(http.StatusBadRequest, nil)
+		}
+		log.Println(addMovies)
+		user, err := api.GetUser(addMovies.UserID)
+		if err != nil {
+			log.Println("cannot find user on AdMovies endpoint: ", err)
+			c.IndentedJSON(http.StatusOK, gin.H{"message": fmt.Sprintf("cannot find user with %d", addMovies.UserID)})
+		}
+		api.AddMovies2User(user, addMovies.MovieIDs)
+		c.IndentedJSON(http.StatusOK, "its ok!")
+	})
+
 	router.GET("/movies/all", func(c *gin.Context) {
 		response := GetMovie("batman")
+		api.AddMovies(&response)
 		c.IndentedJSON(http.StatusOK, response)
+
 	})
 
 	router.GET("/users", func(c *gin.Context) {

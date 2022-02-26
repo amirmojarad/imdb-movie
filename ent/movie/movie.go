@@ -13,33 +13,52 @@ const (
 	FieldID = "id"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
-	// FieldYear holds the string denoting the year field in the database.
-	FieldYear = "year"
 	// FieldRated holds the string denoting the rated field in the database.
 	FieldRated = "rated"
 	// FieldRealeaseDate holds the string denoting the realease_date field in the database.
 	FieldRealeaseDate = "realease_date"
 	// FieldGenre holds the string denoting the genre field in the database.
 	FieldGenre = "genre"
-	// FieldLanguage holds the string denoting the language field in the database.
-	FieldLanguage = "language"
 	// FieldPoster holds the string denoting the poster field in the database.
 	FieldPoster = "poster"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
+	// FieldPlot holds the string denoting the plot field in the database.
+	FieldPlot = "plot"
+	// FieldStars holds the string denoting the stars field in the database.
+	FieldStars = "stars"
+	// FieldImdbRating holds the string denoting the imdb_rating field in the database.
+	FieldImdbRating = "imdb_rating"
+	// EdgeUsers holds the string denoting the users edge name in mutations.
+	EdgeUsers = "users"
 	// Table holds the table name of the movie in the database.
 	Table = "movies"
+	// UsersTable is the table that holds the users relation/edge. The primary key declared below.
+	UsersTable = "user_movies"
+	// UsersInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	UsersInverseTable = "users"
 )
 
 // Columns holds all SQL columns for movie fields.
 var Columns = []string{
 	FieldID,
 	FieldTitle,
-	FieldYear,
 	FieldRated,
 	FieldRealeaseDate,
 	FieldGenre,
-	FieldLanguage,
 	FieldPoster,
+	FieldDescription,
+	FieldPlot,
+	FieldStars,
+	FieldImdbRating,
 }
+
+var (
+	// UsersPrimaryKey and UsersColumn2 are the table columns denoting the
+	// primary key for the users relation (M2M).
+	UsersPrimaryKey = []string{"user_id", "movie_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -52,8 +71,6 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// DefaultYear holds the default value on creation for the "year" field.
-	DefaultYear string
 	// DefaultRealeaseDate holds the default value on creation for the "realease_date" field.
 	DefaultRealeaseDate func() time.Time
 )
