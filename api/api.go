@@ -65,11 +65,32 @@ func (api API) RunAPI() {
 		c.IndentedJSON(http.StatusOK, "its ok!")
 	})
 
-	router.GET("/movies/all", func(c *gin.Context) {
-		response := GetMovie("batman")
-		api.AddMovies(&response)
-		c.IndentedJSON(http.StatusOK, response)
+	router.GET("/movies/:id", func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
+		if movie, err := api.GetMovie(id); err != nil {
+			log.Println(err)
+			return
+		} else {
+			c.IndentedJSON(http.StatusOK, movie)
+		}
+	})
 
+	router.GET("/movies/imdb/", func(c *gin.Context) {
+		response := GetMovie("batman")
+		if movies, err := api.AddMovies(&response); err != nil {
+			log.Println(err)
+		} else {
+			log.Println("MVOEIS: ", movies)
+		}
+		c.IndentedJSON(http.StatusOK, response)
+	})
+
+	router.GET("/movies/all", func(c *gin.Context) {
+		movies, err := api.GetAllMovies()
+		if err != nil {
+			return
+		}
+		c.IndentedJSON(http.StatusOK, movies)
 	})
 
 	router.GET("/users", func(c *gin.Context) {
