@@ -1,3 +1,5 @@
+TEST
+
 # IMDB Movie API
 
 an api for connection to imdb api with Golang and Entgo.
