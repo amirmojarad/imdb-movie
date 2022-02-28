@@ -39,3 +39,17 @@ func (crud *Crud) AddUser(u *UserStruct) (*ent.User, error) {
 		return newUser, err
 	}
 }
+
+func (crud *Crud) AddMoviesToUser(ids *[]int, userID int) ([]*ent.Movie, error) {
+	user, err := crud.Client.User.UpdateOneID(userID).AddMovieIDs(*ids...).Save(crud.Ctx)
+	if err != nil {
+		log.Println("on AddMoviesToUser Function in crud/user.go: ", err)
+		return nil, err
+	}
+	movies, err := user.QueryMovies().All(crud.Ctx)
+	if err != nil {
+		log.Println("on AddMoviesToUser Function in crud/user.go: ", err)
+		return nil, err
+	}
+	return movies, nil
+}

@@ -13,16 +13,12 @@ type API struct {
 	Crud   *crud.Crud
 }
 
-type AddMoviesStruct struct {
-	MovieIDs []int
-	UserID   int
-}
-
 func RunAPI(ctx context.Context, client *ent.Client) {
 	api := API{Router: gin.Default(), Crud: &crud.Crud{Ctx: ctx, Client: client}}
 	api.POSTUser("/users")
 	api.GETUser("/users/:id")
 	api.GETUsers("/users")
+	api.POSTMoviesToUsers("/users/movies")
 	api.Router.Run("localhost:8080")
 }
 

@@ -10,6 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type AddMoviesStruct struct {
+	MovieIDs []int
+	UserID   int
+}
+
 func (api API) POSTUser(path string) {
 	api.Router.POST(path, func(c *gin.Context) {
 		/*
@@ -61,6 +66,20 @@ func (api API) GETUsers(path string) {
 		} else {
 			c.IndentedJSON(http.StatusOK, allUsers)
 		}
+	})
+}
+
+func (api API) POSTMoviesToUsers(path string) {
+	api.Router.POST(path, func(c *gin.Context) {
+		addMoviesStruct := AddMoviesStruct{}
+		c.BindJSON(&addMoviesStruct)
+		movies, err := api.Crud.AddMoviesToUser(&addMoviesStruct.MovieIDs, addMoviesStruct.UserID)
+		if err != nil {
+			log.Println("on POSTMoviesTo in api/user_router.go: ", err)
+			c.IndentedJSON(http.StatusBadRequest, err.Error())
+			return
+		}
+		c.IndentedJSON(http.StatusOK, movies)
 	})
 }
 
