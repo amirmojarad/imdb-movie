@@ -19,6 +19,7 @@ func (crud *Crud) GetAllUsers() ([]*ent.User, error) {
 		return users, nil
 	}
 }
+
 func (crud *Crud) GetUser(id int) (*ent.User, error) {
 	if u, err := crud.Client.User.Get(crud.Ctx, id); err != nil {
 		log.Println("on GetUser Function in crud/user.go: ", err)

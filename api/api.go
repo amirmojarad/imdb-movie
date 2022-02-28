@@ -15,10 +15,16 @@ type API struct {
 
 func RunAPI(ctx context.Context, client *ent.Client) {
 	api := API{Router: gin.Default(), Crud: &crud.Crud{Ctx: ctx, Client: client}}
+	// User Router
 	api.POSTUser("/users")
 	api.GETUser("/users/:id")
 	api.GETUsers("/users")
 	api.POSTMoviesToUsers("/users/movies")
+
+	// Movie Router
+	api.POSTMovies("/movies")
+	api.GETMovies("/movies")
+	api.GETMovieByID("/movies/:id")
 	api.Router.Run("localhost:8080")
 }
 
