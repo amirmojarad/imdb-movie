@@ -45,6 +45,5 @@ func main() {
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
-	router := api.API{Ctx: ctx, Client: client}
-	router.RunAPI()
+	api.RunAPI(ctx, client)
 }
