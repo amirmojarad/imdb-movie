@@ -54,3 +54,19 @@ func (crud *Crud) AddMoviesToUser(ids *[]int, userID int) ([]*ent.Movie, error) 
 	}
 	return movies, nil
 }
+
+func (crud *Crud) GetUserMovie(userID int) ([]*ent.Movie, error) {
+	user, err := crud.Client.User.Get(crud.Ctx, userID)
+	if err != nil {
+		log.Println("on GetUserMovie Function in crud/user.go: ", err)
+		return nil, err
+	}
+	movies, err := user.QueryMovies().All(crud.Ctx)
+
+	if err != nil {
+		log.Println("on GetUserMovie Function in crud/user.go: ", err)
+		return nil, err
+	}
+
+	return movies, nil
+}
