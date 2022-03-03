@@ -13,6 +13,23 @@ type API struct {
 	Crud   *crud.Crud
 }
 
+func (api API) Options(path string) {
+	api.Router.OPTIONS(path, func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+
+		}
+		c.Next()
+	})
+
+}
+
 func RunAPI(ctx context.Context, client *ent.Client) {
 	api := API{Router: gin.Default(), Crud: &crud.Crud{Ctx: ctx, Client: client}}
 
@@ -28,5 +45,7 @@ func RunAPI(ctx context.Context, client *ent.Client) {
 	api.POSTMovies("/movies")
 	api.GETMovies("/movies")
 	api.GETMovieByID("/movies/:id")
+	// Options
+	api.Options("/options")
 	api.Router.Run("localhost:8080")
 }
