@@ -67,6 +67,21 @@ func (uc *UserCreate) AddMovies(m ...*Movie) *UserCreate {
 	return uc.AddMovieIDs(ids...)
 }
 
+// AddFavoriteIDs adds the "favorites" edge to the Movie entity by IDs.
+func (uc *UserCreate) AddFavoriteIDs(ids ...int) *UserCreate {
+	uc.mutation.AddFavoriteIDs(ids...)
+	return uc
+}
+
+// AddFavorites adds the "favorites" edges to the Movie entity.
+func (uc *UserCreate) AddFavorites(m ...*Movie) *UserCreate {
+	ids := make([]int, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return uc.AddFavoriteIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uc *UserCreate) Mutation() *UserMutation {
 	return uc.mutation
@@ -212,10 +227,29 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	}
 	if nodes := uc.mutation.MoviesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   user.MoviesTable,
-			Columns: user.MoviesPrimaryKey,
+			Columns: []string{user.MoviesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: movie.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.FavoritesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.FavoritesTable,
+			Columns: []string{user.FavoritesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

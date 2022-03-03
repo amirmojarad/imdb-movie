@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"entgo.io/ent"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -30,7 +29,5 @@ func (Movie) Fields() []ent.Field {
 
 // Edges of the Movie.
 func (Movie) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.From("users", User.Type).Ref("movies"),
-	}
+	return []ent.Edge{}
 }

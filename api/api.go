@@ -22,6 +22,8 @@ func RunAPI(ctx context.Context, client *ent.Client) {
 	api.GETUsers("/users/:id")
 	api.POSTMoviesToUsers("/user/movies")
 	api.GETUsersMovies("/user/:id/movies")
+	api.GETUsersFavorites("/user/:id/favorites")
+	api.POSTUsersFavorites("/user/:id/favorites")
 	// Movie Router
 	api.POSTMovies("/movies")
 	api.GETMovies("/movies")

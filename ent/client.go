@@ -215,22 +215,6 @@ func (c *MovieClient) GetX(ctx context.Context, id int) *Movie {
 	return obj
 }
 
-// QueryUsers queries the users edge of a Movie.
-func (c *MovieClient) QueryUsers(m *Movie) *UserQuery {
-	query := &UserQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(movie.Table, movie.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, movie.UsersTable, movie.UsersPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *MovieClient) Hooks() []Hook {
 	return c.hooks.Movie
@@ -329,7 +313,23 @@ func (c *UserClient) QueryMovies(u *User) *MovieQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(movie.Table, movie.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, user.MoviesTable, user.MoviesPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.MoviesTable, user.MoviesColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFavorites queries the favorites edge of a User.
+func (c *UserClient) QueryFavorites(u *User) *MovieQuery {
+	query := &MovieQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(movie.Table, movie.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.FavoritesTable, user.FavoritesColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

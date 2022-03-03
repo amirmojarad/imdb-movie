@@ -584,7 +584,7 @@ func HasMovies() predicate.User {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(MoviesTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, MoviesTable, MoviesPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, MoviesTable, MoviesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -596,7 +596,35 @@ func HasMoviesWith(preds ...predicate.Movie) predicate.User {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(MoviesInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, MoviesTable, MoviesPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, MoviesTable, MoviesColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasFavorites applies the HasEdge predicate on the "favorites" edge.
+func HasFavorites() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FavoritesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FavoritesTable, FavoritesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasFavoritesWith applies the HasEdge predicate on the "favorites" edge with a given conditions (other predicates).
+func HasFavoritesWith(preds ...predicate.Movie) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FavoritesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FavoritesTable, FavoritesColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

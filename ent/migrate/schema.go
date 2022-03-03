@@ -20,12 +20,28 @@ var (
 		{Name: "plot", Type: field.TypeString},
 		{Name: "stars", Type: field.TypeString},
 		{Name: "imdb_rating", Type: field.TypeString},
+		{Name: "user_movies", Type: field.TypeInt, Nullable: true},
+		{Name: "user_favorites", Type: field.TypeInt, Nullable: true},
 	}
 	// MoviesTable holds the schema information for the "movies" table.
 	MoviesTable = &schema.Table{
 		Name:       "movies",
 		Columns:    MoviesColumns,
 		PrimaryKey: []*schema.Column{MoviesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "movies_users_movies",
+				Columns:    []*schema.Column{MoviesColumns[10]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "movies_users_favorites",
+				Columns:    []*schema.Column{MoviesColumns[11]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -41,40 +57,14 @@ var (
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
-	// UserMoviesColumns holds the columns for the "user_movies" table.
-	UserMoviesColumns = []*schema.Column{
-		{Name: "user_id", Type: field.TypeInt},
-		{Name: "movie_id", Type: field.TypeInt},
-	}
-	// UserMoviesTable holds the schema information for the "user_movies" table.
-	UserMoviesTable = &schema.Table{
-		Name:       "user_movies",
-		Columns:    UserMoviesColumns,
-		PrimaryKey: []*schema.Column{UserMoviesColumns[0], UserMoviesColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "user_movies_user_id",
-				Columns:    []*schema.Column{UserMoviesColumns[0]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "user_movies_movie_id",
-				Columns:    []*schema.Column{UserMoviesColumns[1]},
-				RefColumns: []*schema.Column{MoviesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		MoviesTable,
 		UsersTable,
-		UserMoviesTable,
 	}
 )
 
 func init() {
-	UserMoviesTable.ForeignKeys[0].RefTable = UsersTable
-	UserMoviesTable.ForeignKeys[1].RefTable = MoviesTable
+	MoviesTable.ForeignKeys[0].RefTable = UsersTable
+	MoviesTable.ForeignKeys[1].RefTable = UsersTable
 }

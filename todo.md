@@ -3,8 +3,8 @@ list of features
 
 ## TODO List
 
-- [ ] Persist Database
+- [x] Persist Database
 - [ ] Unit Test
 - [ ] Profiling
 - [ ] Adding Concurrency
-- [ ] 
+- [ ] Handle All REST API Messages

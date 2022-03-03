@@ -95,3 +95,30 @@ func (api API) GETUsersMovies(path string) {
 		c.IndentedJSON(http.StatusOK, movies)
 	})
 }
+
+func (api API) GETUsersFavorites(path string) {
+	api.Router.GET(path, func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
+		favorites, err := api.Crud.GetFavorites(id)
+		if err != nil {
+			log.Println("on GETUsersMovies in api/user_router.go: ", err)
+			c.IndentedJSON(http.StatusNotFound, fmt.Sprintf("user not found with id %d", id))
+			return
+		}
+		c.IndentedJSON(http.StatusOK, favorites)
+	})
+}
+
+func (api API) POSTUsersFavorites(path string) {
+	api.Router.POST(path, func(c *gin.Context) {
+		addMoviesStruct := AddMoviesStruct{}
+		c.BindJSON(&addMoviesStruct)
+		favorites, err := api.Crud.AddFavorites(&addMoviesStruct.MovieIDs, addMoviesStruct.UserID)
+		if err != nil {
+			log.Println("on POSTUsersFavorites in api/user_router.go: ", err)
+			c.IndentedJSON(http.StatusNotFound, err.Error())
+			return
+		}
+		c.IndentedJSON(http.StatusOK, favorites)
+	})
+}

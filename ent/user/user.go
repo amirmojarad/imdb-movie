@@ -17,13 +17,24 @@ const (
 	FieldPassword = "password"
 	// EdgeMovies holds the string denoting the movies edge name in mutations.
 	EdgeMovies = "movies"
+	// EdgeFavorites holds the string denoting the favorites edge name in mutations.
+	EdgeFavorites = "favorites"
 	// Table holds the table name of the user in the database.
 	Table = "users"
-	// MoviesTable is the table that holds the movies relation/edge. The primary key declared below.
-	MoviesTable = "user_movies"
+	// MoviesTable is the table that holds the movies relation/edge.
+	MoviesTable = "movies"
 	// MoviesInverseTable is the table name for the Movie entity.
 	// It exists in this package in order to avoid circular dependency with the "movie" package.
 	MoviesInverseTable = "movies"
+	// MoviesColumn is the table column denoting the movies relation/edge.
+	MoviesColumn = "user_movies"
+	// FavoritesTable is the table that holds the favorites relation/edge.
+	FavoritesTable = "movies"
+	// FavoritesInverseTable is the table name for the Movie entity.
+	// It exists in this package in order to avoid circular dependency with the "movie" package.
+	FavoritesInverseTable = "movies"
+	// FavoritesColumn is the table column denoting the favorites relation/edge.
+	FavoritesColumn = "user_favorites"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -34,12 +45,6 @@ var Columns = []string{
 	FieldFullName,
 	FieldPassword,
 }
-
-var (
-	// MoviesPrimaryKey and MoviesColumn2 are the table columns denoting the
-	// primary key for the movies relation (M2M).
-	MoviesPrimaryKey = []string{"user_id", "movie_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {

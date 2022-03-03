@@ -25,5 +25,6 @@ func (User) Fields() []ent.Field {
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("movies", Movie.Type),
+		edge.To("favorites", Movie.Type),
 	}
 }

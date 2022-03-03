@@ -70,3 +70,31 @@ func (crud *Crud) GetUserMovie(userID int) ([]*ent.Movie, error) {
 
 	return movies, nil
 }
+
+func (crud *Crud) AddFavorites(ids *[]int, userID int) ([]*ent.Movie, error) {
+	_, err := crud.Client.User.UpdateOneID(userID).AddFavoriteIDs(*ids...).Save(crud.Ctx)
+	if err != nil {
+		log.Println("on AddFavorites Function in crud/user.go: ", err)
+		return nil, err
+	}
+	favorites, err := crud.GetFavorites(userID)
+	if err != nil {
+		log.Println("on AddFavorites Function in crud/user.go: ", err)
+		return nil, err
+	}
+	return favorites, err
+}
+
+func (crud *Crud) GetFavorites(userID int) ([]*ent.Movie, error) {
+	user, err := crud.GetUser(userID)
+	if err != nil {
+		log.Println("on GetFavorites Function in crud/user.go: ", err)
+		return nil, err
+	}
+	favorites, err := user.QueryFavorites().All(crud.Ctx)
+	if err != nil {
+		log.Println("on GetFavorites Function in crud/user.go: ", err)
+		return nil, err
+	}
+	return favorites, nil
+}

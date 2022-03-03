@@ -27,7 +27,8 @@ type UserQuery struct {
 	fields     []string
 	predicates []predicate.User
 	// eager-loading edges.
-	withMovies *MovieQuery
+	withMovies    *MovieQuery
+	withFavorites *MovieQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -78,7 +79,29 @@ func (uq *UserQuery) QueryMovies() *MovieQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(movie.Table, movie.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, user.MoviesTable, user.MoviesPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.MoviesTable, user.MoviesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFavorites chains the current query on the "favorites" edge.
+func (uq *UserQuery) QueryFavorites() *MovieQuery {
+	query := &MovieQuery{config: uq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(movie.Table, movie.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.FavoritesTable, user.FavoritesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -262,12 +285,13 @@ func (uq *UserQuery) Clone() *UserQuery {
 		return nil
 	}
 	return &UserQuery{
-		config:     uq.config,
-		limit:      uq.limit,
-		offset:     uq.offset,
-		order:      append([]OrderFunc{}, uq.order...),
-		predicates: append([]predicate.User{}, uq.predicates...),
-		withMovies: uq.withMovies.Clone(),
+		config:        uq.config,
+		limit:         uq.limit,
+		offset:        uq.offset,
+		order:         append([]OrderFunc{}, uq.order...),
+		predicates:    append([]predicate.User{}, uq.predicates...),
+		withMovies:    uq.withMovies.Clone(),
+		withFavorites: uq.withFavorites.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -282,6 +306,17 @@ func (uq *UserQuery) WithMovies(opts ...func(*MovieQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withMovies = query
+	return uq
+}
+
+// WithFavorites tells the query-builder to eager-load the nodes that are connected to
+// the "favorites" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithFavorites(opts ...func(*MovieQuery)) *UserQuery {
+	query := &MovieQuery{config: uq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withFavorites = query
 	return uq
 }
 
@@ -350,8 +385,9 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			uq.withMovies != nil,
+			uq.withFavorites != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
@@ -376,66 +412,59 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 
 	if query := uq.withMovies; query != nil {
 		fks := make([]driver.Value, 0, len(nodes))
-		ids := make(map[int]*User, len(nodes))
-		for _, node := range nodes {
-			ids[node.ID] = node
-			fks = append(fks, node.ID)
-			node.Edges.Movies = []*Movie{}
+		nodeids := make(map[int]*User)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Movies = []*Movie{}
 		}
-		var (
-			edgeids []int
-			edges   = make(map[int][]*User)
-		)
-		_spec := &sqlgraph.EdgeQuerySpec{
-			Edge: &sqlgraph.EdgeSpec{
-				Inverse: false,
-				Table:   user.MoviesTable,
-				Columns: user.MoviesPrimaryKey,
-			},
-			Predicate: func(s *sql.Selector) {
-				s.Where(sql.InValues(user.MoviesPrimaryKey[0], fks...))
-			},
-			ScanValues: func() [2]interface{} {
-				return [2]interface{}{new(sql.NullInt64), new(sql.NullInt64)}
-			},
-			Assign: func(out, in interface{}) error {
-				eout, ok := out.(*sql.NullInt64)
-				if !ok || eout == nil {
-					return fmt.Errorf("unexpected id value for edge-out")
-				}
-				ein, ok := in.(*sql.NullInt64)
-				if !ok || ein == nil {
-					return fmt.Errorf("unexpected id value for edge-in")
-				}
-				outValue := int(eout.Int64)
-				inValue := int(ein.Int64)
-				node, ok := ids[outValue]
-				if !ok {
-					return fmt.Errorf("unexpected node id in edges: %v", outValue)
-				}
-				if _, ok := edges[inValue]; !ok {
-					edgeids = append(edgeids, inValue)
-				}
-				edges[inValue] = append(edges[inValue], node)
-				return nil
-			},
-		}
-		if err := sqlgraph.QueryEdges(ctx, uq.driver, _spec); err != nil {
-			return nil, fmt.Errorf(`query edges "movies": %w`, err)
-		}
-		query.Where(movie.IDIn(edgeids...))
+		query.withFKs = true
+		query.Where(predicate.Movie(func(s *sql.Selector) {
+			s.Where(sql.InValues(user.MoviesColumn, fks...))
+		}))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			nodes, ok := edges[n.ID]
+			fk := n.user_movies
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "user_movies" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected "movies" node returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "user_movies" returned %v for node %v`, *fk, n.ID)
 			}
-			for i := range nodes {
-				nodes[i].Edges.Movies = append(nodes[i].Edges.Movies, n)
+			node.Edges.Movies = append(node.Edges.Movies, n)
+		}
+	}
+
+	if query := uq.withFavorites; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*User)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Favorites = []*Movie{}
+		}
+		query.withFKs = true
+		query.Where(predicate.Movie(func(s *sql.Selector) {
+			s.Where(sql.InValues(user.FavoritesColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.user_favorites
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "user_favorites" is nil for node %v`, n.ID)
 			}
+			node, ok := nodeids[*fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "user_favorites" returned %v for node %v`, *fk, n.ID)
+			}
+			node.Edges.Favorites = append(node.Edges.Favorites, n)
 		}
 	}
 
