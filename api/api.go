@@ -2,8 +2,11 @@ package api
 
 import (
 	"context"
+	"imdb-movie/controller"
 	"imdb-movie/crud"
 	"imdb-movie/ent"
+	"imdb-movie/service"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +34,23 @@ func (api API) Options(path string) {
 }
 
 func RunAPI(ctx context.Context, client *ent.Client) {
-	api := API{Router: gin.Default(), Crud: &crud.Crud{Ctx: ctx, Client: client}}
+
+	var loginService service.LoginService = service.StaticLoginService()
+	var jwtService service.JWTService = service.JWTAuthService()
+	var loginController controller.LoginController = controller.LoginHandler(loginService, jwtService)
+
+	api := API{Router: gin.New(), Crud: &crud.Crud{Ctx: ctx, Client: client}}
+
+	api.Router.POST("/login", func(ctx *gin.Context) {
+		token := loginController.Login(ctx)
+		if token != "" {
+			ctx.JSON(http.StatusOK, gin.H{
+				"token": token,
+			})
+		} else {
+			ctx.JSON(http.StatusUnauthorized, nil)
+		}
+	})
 
 	// User Router
 	api.POSTUser("/users")
