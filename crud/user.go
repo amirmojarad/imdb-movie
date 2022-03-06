@@ -2,6 +2,8 @@ package crud
 
 import (
 	"imdb-movie/ent"
+	"imdb-movie/ent/user"
+	"imdb-movie/utils"
 	"log"
 )
 
@@ -20,6 +22,21 @@ func (crud *Crud) GetAllUsers() ([]*ent.User, error) {
 	}
 }
 
+func (crud *Crud) DeleteUser(id int) bool {
+	err := crud.Client.User.DeleteOneID(id).Exec(crud.Ctx)
+	return err == nil
+}
+
+func (crud *Crud) GetUserByEmail(email string) (*ent.User, error) {
+	if fetchedUser, err := crud.Client.User.Query().Select(user.FieldEmail, user.FieldPassword).First(crud.Ctx); err != nil {
+		log.Println("on GetUserByEmail in crud/user.go: ", err)
+		return nil, err
+	} else {
+		log.Println("on GetUserByEmail in crud/user.go: ", fetchedUser)
+		return fetchedUser, nil
+	}
+}
+
 func (crud *Crud) GetUser(id int) (*ent.User, error) {
 	if u, err := crud.Client.User.Get(crud.Ctx, id); err != nil {
 		log.Println("on GetUser Function in crud/user.go: ", err)
@@ -31,7 +48,8 @@ func (crud *Crud) GetUser(id int) (*ent.User, error) {
 }
 
 func (crud *Crud) AddUser(u *UserStruct) (*ent.User, error) {
-	newUser, err := crud.Client.User.Create().SetEmail(u.Email).SetFullName(u.FullName).SetPassword(u.Password).SetUsername(u.Username).Save(crud.Ctx)
+	hashedPassword, _ := utils.HashPassword(u.Password)
+	newUser, err := crud.Client.User.Create().SetEmail(u.Email).SetFullName(u.FullName).SetPassword(hashedPassword).SetUsername(u.Username).Save(crud.Ctx)
 	if err != nil {
 		log.Println("on AddUser Function in crud/user.go: ", err)
 		return nil, err

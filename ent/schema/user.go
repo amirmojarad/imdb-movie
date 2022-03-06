@@ -17,7 +17,7 @@ func (User) Fields() []ent.Field {
 		field.String("username").Unique().MinLen(4),
 		field.String("email").Unique(),
 		field.String("full_name").Optional().Nillable(),
-		field.String("password").Sensitive(),
+		field.String("password").NotEmpty(),
 	}
 }
 

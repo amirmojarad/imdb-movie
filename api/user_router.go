@@ -15,6 +15,18 @@ type AddMoviesStruct struct {
 	UserID   int
 }
 
+func (api API) DELETEUser(path string) {
+	api.Router.DELETE(path, func(ctx *gin.Context) {
+		id, _ := strconv.Atoi(ctx.Param("id"))
+		res := api.Crud.DeleteUser(id)
+		if res {
+			ctx.IndentedJSON(http.StatusOK, fmt.Sprintf("Deleted user with id: %d", id))
+		} else {
+			ctx.IndentedJSON(http.StatusConflict, fmt.Sprintf("Can not delete user with id: %d", id))
+		}
+	})
+}
+
 func (api API) POSTUser(path string) {
 	api.Router.POST(path, func(c *gin.Context) {
 		/*
